@@ -1,140 +1,171 @@
-# VISION-X — Production Cloud Deployment Guide
+# VISION-X — Ubuntu 22.04+ Production Cloud Deployment Manual
 
-## Overview
+## System Architecture
 
-VISION-X is a real-time computer vision system built with FastAPI (Python 3.10), PyTorch, YOLOv8n, ByteTrack, FastSAM, MiDaS, and React (TypeScript + Vite).
-
----
-
-## 1. System Requirements & Architecture
-
-- **Backend Container**: Docker (Python 3.10-slim), Uvicorn server, PyTorch CPU/CUDA execution.
-- **Frontend Container**: Nginx Alpine serving static production Vite bundle.
-- **Memory Recommendation**: 2 GB RAM minimum (4 GB RAM recommended for multi-client concurrency).
-- **CPU Recommendation**: 2 vCPUs minimum.
-
----
-
-## 2. Local Production Build Verification
-
-### Backend Verification
-```bash
-# Run backend test suite
-python -m unittest discover -s backend/tests
-
-# Start production API server
-uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --workers 2
 ```
-
-### Frontend Verification
-```bash
-# Build production frontend bundle
-cd frontend
-npm run build
-
-# Preview static distribution
-npm run preview
+Internet (HTTPS 443)
+       ↓
+Nginx Reverse Proxy + Let's Encrypt SSL Certbot
+       ↓
+┌──────────────────────────────────────────────┐
+│ Docker Compose Stack                         │
+│                                              │
+│  ├── Frontend Container (Nginx Alpine :80)   │
+│  └── Backend Container (FastAPI :8000)       │
+│      ├── YOLOv8n                             │
+│      ├── ByteTrack                           │
+│      ├── FastSAM                             │
+│      ├── MiDaS                               │
+│      └── Calibrated Distance Estimator       │
+└──────────────────────────────────────────────┘
 ```
 
 ---
 
-## 3. Docker Containerization Setup
+## 1. Prerequisites on Ubuntu 22.04 LTS Cloud VPS
 
-### Backend Dockerfile (`backend/Dockerfile`)
-```dockerfile
-FROM python:3.10-slim
-
-WORKDIR /app
-
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    curl \
-    && rm -rf /var/lib/apt-get/lists/*
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY . .
-
-EXPOSE 8000
-
-HEALTHCHECK --interval=15s --timeout=5s --retries=3 \
-    CMD curl -f http://localhost:8000/health || exit 1
-
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-```
-
-### Production Docker Compose (`docker-compose.yml`)
-```yaml
-version: '3.8'
-
-services:
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
-    environment:
-      - CONFIDENCE_THRESHOLD=0.25
-      - INFERENCE_SIZE=640
-      - MAX_CONCURRENT_INFERENCE=2
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
-```
-
----
-
-## 4. Cloud Deployment Options
-
-### Option A: Railway / Render / Fly.io (One-Click)
-1. Connect GitHub repository to Railway or Render.
-2. Select Dockerfile for backend service on port `8000`.
-3. Set environment variable `VITE_API_URL=https://<your-backend-domain>` for frontend build.
-4. Deploy frontend static site.
-
-### Option B: AWS ECS / DigitalOcean App Platform
-1. Push backend Docker image to Amazon ECR / Docker Hub:
-   ```bash
-   docker build -t vision-x-backend ./backend
-   docker tag vision-x-backend:latest <registry-url>/vision-x-backend:latest
-   docker push <registry-url>/vision-x-backend:latest
-   ```
-2. Deploy backend service container with port 8000 exposed.
-3. Deploy frontend Nginx container or AWS S3 + CloudFront static distribution.
-
----
-
-## 5. Production Health Probes
-
-- **Liveness Probe**: `GET /health` (Returns HTTP 200 `healthy` status and model load states)
-- **Readiness Probe**: `GET /ready` (Returns HTTP 200 `ready` status when all 4 models are loaded)
-
----
-
-## 6. Codebase Freeze & Release Tag
+Run as root or sudo user on your Ubuntu cloud instance:
 
 ```bash
-git tag -a v1.0.0-production -m "VISION-X Final Production Release"
-git push origin v1.0.0-production
+# Update system packages
+sudo apt update && sudo apt upgrade -y
+
+# Install Docker Engine & Docker Compose plugin
+sudo apt install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin git nginx certbot python3-certbot-nginx
+
+# Enable and start Docker service
+sudo systemctl enable --now docker
+```
+
+---
+
+## 2. Configure UFW Firewall
+
+```bash
+sudo ufw allow 22/tcp
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+sudo ufw enable
+```
+
+---
+
+## 3. Clone Repository & Environment Setup
+
+```bash
+# Clone repository onto VPS
+git clone https://github.com/vyshnavichaganti/-VISION-X-Real-Time-Camera-Vision-Application.git /opt/vision-x
+cd /opt/vision-x
+
+# Configure production environment settings
+cp backend/.env.example backend/.env
+```
+
+---
+
+## 4. Build and Start Docker Compose Stack
+
+```bash
+# Build and start services in background
+sudo docker compose up -d --build
+
+# Verify container status
+sudo docker compose ps
+```
+
+Expected Output:
+```
+NAME                 STATUS              PORTS
+vision-x-backend     Up (healthy)        0.0.0.0:8000->8000/tcp
+vision-x-frontend    Up                  0.0.0.0:8080->80/tcp
+```
+
+---
+
+## 5. Configure Nginx Reverse Proxy with HTTPS (Let's Encrypt)
+
+> [!IMPORTANT]
+> WebRTC browser camera permissions require a **Secure Context (HTTPS)**. Plain HTTP will prevent the camera from starting.
+
+Create Nginx site configuration at `/etc/nginx/sites-available/vision-x`:
+
+```nginx
+server {
+    server_name vision.yourdomain.com;  # Replace with your actual domain
+
+    client_max_body_size 10M;
+
+    # Frontend Proxy
+    location / {
+        proxy_pass http://127.0.0.1:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Backend API Proxy
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Health & Readiness Probes
+    location /health {
+        proxy_pass http://127.0.0.1:8000/health;
+    }
+
+    location /ready {
+        proxy_pass http://127.0.0.1:8000/ready;
+    }
+}
+```
+
+Enable site and issue HTTPS certificate:
+```bash
+sudo ln -s /etc/nginx/sites-available/vision-x /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+
+# Issue free SSL Certificate with Certbot
+sudo certbot --nginx -d vision.yourdomain.com
+```
+
+---
+
+## 6. Production Smoke Test Verification
+
+```bash
+# Verify Health Endpoint
+curl -f https://vision.yourdomain.com/health
+
+# Verify Readiness Endpoint
+curl -f https://vision.yourdomain.com/ready
+```
+
+Expected Health Output:
+```json
+{
+  "status": "healthy",
+  "service": "AI Real-Time Camera Vision API",
+  "version": "0.3.0",
+  "model_loaded": true,
+  "model": "YOLOv8n-COCO",
+  "device": "cpu",
+  "segmentor_loaded": true,
+  "depth_loaded": true,
+  "distance_estimator_loaded": true
+}
 ```
