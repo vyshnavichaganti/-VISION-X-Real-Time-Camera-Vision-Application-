@@ -1,0 +1,15 @@
+node_modules/
+dist/
+dist-ssr/
+.npm/
+*.log
+
+# Secrets & Local Envs
+.env
+.env.local
+.env.*
+
+# IDE & System
+.vscode/
+.idea/
+.DS_Store

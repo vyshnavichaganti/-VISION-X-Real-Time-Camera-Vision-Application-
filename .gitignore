@@ -1,0 +1,67 @@
+# Python / Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables & secrets
+.env
+*.env
+!.env.example
+!backend/.env.example
+!frontend/.env.example
+.env.local
+.env.*.local
+backend/.env
+
+# Model Weight Artifacts
+*.pth
+*.onnx
+*.engine
+!yolov8n.pt
+!FastSAM-s.pt
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/node_modules/
+.npm
+*.log
+
+# Logs & Temporary files
+*.log
+logs/
+temp/
+tmp/
+scratch/
+
+# IDE / System
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
