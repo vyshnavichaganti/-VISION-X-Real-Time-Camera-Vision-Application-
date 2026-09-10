@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState, useRef } from 'react';
-import { Camera, Loader2, Maximize2, Minimize2, Eye, Activity } from 'lucide-react';
+import { Camera, Loader2, Maximize2, Minimize2, Activity } from 'lucide-react';
 import { syncCanvasSize, drawTargetReticle, clearCanvas } from '../utils/canvas';
 import type { VisionMode } from '../types/vision';
 
@@ -19,7 +19,6 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
   isStreaming,
   isLoading,
   fps,
-  visionMode = 'composite',
   onStartCamera,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -127,10 +126,6 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
                 {fps} FPS
               </div>
             )}
-            <div className="flex items-center gap-1.5 rounded-full bg-stone-900/80 px-3 py-1 text-xs font-mono font-bold text-stone-200 backdrop-blur-md border border-stone-700 uppercase">
-              <Eye className="h-3.5 w-3.5 text-stone-400" />
-              {visionMode}
-            </div>
           </div>
 
           <div className="absolute right-4 top-4">

@@ -48,7 +48,7 @@ export const ObjectIntelligenceTable: React.FC<ObjectIntelligenceTableProps> = (
               detections.map((obj, idx) => {
                 const labelCap = obj.label.charAt(0).toUpperCase() + obj.label.slice(1);
                 const confPercent = `${Math.round(obj.confidence * 100)}%`;
-                
+
                 let distValue = '--';
                 if (obj.distance?.meters) {
                   distValue = `≈ ${obj.distance.meters.toFixed(1)} m`;

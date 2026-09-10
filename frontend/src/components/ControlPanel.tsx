@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Play, Square, Video, Sliders, Eye, ChevronDown, ChevronUp, RotateCcw, Cpu } from 'lucide-react';
+import React from 'react';
+import { Play, Square, Video, Sliders, RotateCcw } from 'lucide-react';
 import type { CameraDevice, Resolution } from '../types/vision';
 
 interface ControlPanelProps {
@@ -30,21 +30,13 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   devices,
   activeDeviceId,
   resolution,
-  detectionEnabled,
-  confidenceThreshold,
-  inferenceSize,
   backendOnline,
   onStartCamera,
   onStopCamera,
   onResetTracking,
   onDeviceChange,
   onResolutionChange,
-  onToggleDetection,
-  onConfidenceChange,
-  onInferenceSizeChange,
 }) => {
-  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
-
   return (
     <div className="flex flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       {/* Header & Status Indicator */}
@@ -69,7 +61,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         </div>
       </div>
 
-      {/* Main Action Buttons Grid: Start Camera | Stop Camera */}
+      {/* Primary Actions: Start Camera | Stop Camera */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
           onClick={onStartCamera}
@@ -115,8 +107,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         <span>Reset Tracking</span>
       </button>
 
-      {/* Selectors: Device & Resolution */}
-      <div className="grid grid-cols-1 gap-4">
+      {/* Camera & Resolution Selectors */}
+      <div className="grid grid-cols-1 gap-4 pt-1 border-t border-stone-100">
         {/* Device Selection */}
         <div className="space-y-1.5">
           <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600">
@@ -156,88 +148,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             <option value="1080p">1080p (1920 × 1080) • High Quality</option>
           </select>
         </div>
-      </div>
-
-      {/* Advanced Settings Collapsible Drawer */}
-      <div className="border-t border-stone-100 pt-3">
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex w-full items-center justify-between py-1 text-xs font-bold uppercase tracking-wider text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
-        >
-          <span>Advanced AI Settings</span>
-          {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </button>
-
-        {showAdvanced && (
-          <div className="flex flex-col gap-3 pt-3">
-            {/* Object Detection Toggle */}
-            <button
-              onClick={onToggleDetection}
-              className={`flex items-center justify-between rounded-xl border p-3 transition-all cursor-pointer ${
-                detectionEnabled
-                  ? 'border-amber-300 bg-amber-50/60 text-stone-900'
-                  : 'border-stone-200 bg-stone-50 text-stone-500'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Eye className={`h-4 w-4 ${detectionEnabled ? 'text-[#C5A059]' : 'text-stone-400'}`} />
-                <div className="text-left">
-                  <p className="text-xs font-bold">Object Detection</p>
-                  <p className="text-[10px] text-stone-500">YOLOv8 PyTorch Engine</p>
-                </div>
-              </div>
-              <div
-                className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
-                  detectionEnabled ? 'bg-[#C5A059]' : 'bg-stone-300'
-                }`}
-              >
-                <div
-                  className={`h-4 w-4 rounded-full bg-white transition-transform ${
-                    detectionEnabled ? 'translate-x-4' : 'translate-x-0'
-                  }`}
-                />
-              </div>
-            </button>
-
-            {/* Model Inference Size & Confidence Threshold */}
-            {detectionEnabled && (
-              <div className="flex flex-col gap-3">
-                <div className="space-y-1 rounded-xl border border-stone-200 bg-stone-50 p-3">
-                  <label className="flex items-center gap-1 text-xs font-bold text-stone-600">
-                    <Cpu className="h-3.5 w-3.5 text-[#C5A059]" />
-                    Inference Size
-                  </label>
-                  <select
-                    value={inferenceSize}
-                    onChange={(e) => onInferenceSizeChange(parseInt(e.target.value, 10))}
-                    className="w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs font-medium text-stone-800 focus:border-[#C5A059] focus:outline-none"
-                  >
-                    <option value={320}>320 × 320 (Ultra Fast)</option>
-                    <option value={640}>640 × 640 (Standard)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1 rounded-xl border border-stone-200 bg-stone-50 p-3">
-                  <div className="flex items-center justify-between text-xs font-bold text-stone-600">
-                    <span>Confidence Threshold:</span>
-                    <span className="font-mono text-[#9A7B3E]">
-                      {Math.round(confidenceThreshold * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0.10"
-                    max="0.90"
-                    step="0.05"
-                    value={confidenceThreshold}
-                    onChange={(e) => onConfidenceChange(parseFloat(e.target.value))}
-                    className="w-full accent-[#C5A059] cursor-pointer"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
