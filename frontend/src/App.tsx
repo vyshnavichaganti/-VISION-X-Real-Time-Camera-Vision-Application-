@@ -55,7 +55,7 @@ export function App() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen bg-[#FAF8F5] text-stone-900 flex flex-col font-sans selection:bg-amber-200 selection:text-stone-900">
       {/* 1. HEADER */}
       <Header
         isStreaming={isStreaming}
@@ -78,86 +78,91 @@ export function App() {
         {/* ================================================== */}
         {/* DEMO VIEW (DEFAULT VIEW)                           */}
         {/* ================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Main Column: Hero Camera Feed & Object Intelligence */}
-          <div className="lg:col-span-8 flex flex-col gap-6 w-full min-w-0">
-            {/* 2. LIVE CAMERA HERO */}
-            <CameraFeed
-              videoRef={videoRef}
-              canvasRef={canvasRef}
-              isStreaming={isStreaming}
-              isLoading={isLoading}
-              fps={telemetry.cameraFps}
-              visionMode={visionMode}
-              onStartCamera={() => startCamera()}
-            />
+        {viewMode === 'demo' && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Main Column: Hero Camera Feed & Object Intelligence */}
+            <div className="lg:col-span-8 flex flex-col gap-6 w-full min-w-0">
+              {/* LIVE CAMERA HERO */}
+              <CameraFeed
+                videoRef={videoRef}
+                canvasRef={canvasRef}
+                isStreaming={isStreaming}
+                isLoading={isLoading}
+                fps={telemetry.cameraFps}
+                visionMode={visionMode}
+                onStartCamera={() => startCamera()}
+              />
 
-            {/* 3. SCENE INTELLIGENCE (4 Cards Only) */}
-            <SceneIntelligence
-              telemetry={telemetry}
-              detections={lastDetections}
-              isStreaming={isStreaming}
-            />
+              {/* SUMMARY CARD (4 Metrics: Objects, People, Scene Status, Tracking Status) */}
+              <SceneIntelligence
+                telemetry={telemetry}
+                detections={lastDetections}
+                isStreaming={isStreaming}
+              />
 
-            {/* 4. DETECTED OBJECTS TABLE */}
-            <ObjectIntelligenceTable
-              detections={lastDetections}
-              isStreaming={isStreaming}
-            />
+              {/* DETECTED OBJECTS TABLE */}
+              <ObjectIntelligenceTable
+                detections={lastDetections}
+                isStreaming={isStreaming}
+              />
+            </div>
+
+            {/* Sidebar Column: CONTROLS */}
+            <div className="lg:col-span-4 flex flex-col gap-6 w-full">
+              <ControlPanel
+                isStreaming={isStreaming}
+                isLoading={isLoading}
+                devices={devices}
+                activeDeviceId={activeDeviceId}
+                resolution={resolution}
+                detectionEnabled={detectionEnabled}
+                confidenceThreshold={confidenceThreshold}
+                inferenceSize={inferenceSize}
+                backendOnline={telemetry.backendOnline}
+                demoMode={demoMode}
+                onStartCamera={() => startCamera()}
+                onStopCamera={stopCamera}
+                onResetTracking={resetTracking}
+                onDeviceChange={changeDevice}
+                onResolutionChange={changeResolution}
+                onToggleDetection={toggleDetection}
+                onConfidenceChange={changeConfidenceThreshold}
+                onInferenceSizeChange={changeInferenceSize}
+                onToggleDemoMode={() => setDemoMode(!demoMode)}
+              />
+            </div>
           </div>
-
-          {/* Sidebar Column: 5. CONTROLS */}
-          <div className="lg:col-span-4 flex flex-col gap-6 w-full">
-            <ControlPanel
-              isStreaming={isStreaming}
-              isLoading={isLoading}
-              devices={devices}
-              activeDeviceId={activeDeviceId}
-              resolution={resolution}
-              detectionEnabled={detectionEnabled}
-              confidenceThreshold={confidenceThreshold}
-              inferenceSize={inferenceSize}
-              backendOnline={telemetry.backendOnline}
-              demoMode={demoMode}
-              onStartCamera={() => startCamera()}
-              onStopCamera={stopCamera}
-              onResetTracking={resetTracking}
-              onDeviceChange={changeDevice}
-              onResolutionChange={changeResolution}
-              onToggleDetection={toggleDetection}
-              onConfidenceChange={changeConfidenceThreshold}
-              onInferenceSizeChange={changeInferenceSize}
-              onToggleDemoMode={() => setDemoMode(!demoMode)}
-            />
-          </div>
-        </div>
+        )}
 
         {/* ================================================== */}
         {/* TECHNICAL VIEW (Engineering Console)               */}
         {/* ================================================== */}
         {viewMode === 'technical' && (
-          <div className="flex flex-col gap-6 border-t border-purple-900/40 pt-6 mt-2">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-purple-400 animate-pulse" />
-              <h2 className="text-sm font-extrabold tracking-wider text-purple-300 uppercase font-mono">
-                ENGINEERING TELEMETRY & DIAGNOSTIC CONSOLE
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-2 border-b border-stone-200 pb-3">
+              <span className="h-2.5 w-2.5 rounded-full bg-[#C5A059] animate-pulse" />
+              <h2 className="text-xs font-extrabold tracking-wider text-stone-700 uppercase font-sans">
+                ENGINEERING DIAGNOSTICS & TELEMETRY CONSOLE
               </h2>
             </div>
 
             {/* Vision Mode Filter Tabs */}
             <VisionModeSelector currentMode={visionMode} onSelectMode={setVisionMode} />
 
+            {/* Pipeline Architecture Cards */}
             <PipelineVisualization
               telemetry={telemetry}
               isStreaming={isStreaming}
               isTechnicalView={true}
             />
 
+            {/* Telemetry Debug HUD & Event Stream */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DebugHUD telemetry={telemetry} isStreaming={isStreaming} />
               <EventStream events={events} defaultExpanded={true} />
             </div>
 
+            {/* Educational Model Details */}
             <HowAiSees />
           </div>
         )}

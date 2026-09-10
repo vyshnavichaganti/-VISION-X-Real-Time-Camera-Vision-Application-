@@ -13,10 +13,11 @@ router = APIRouter()
 def health_check():
     """
     Lightweight healthcheck endpoint for load balancers and container liveness probes.
+    Does NOT trigger lazy model loading.
     """
     detector_loaded = bool(vision_service.detector and vision_service.detector.is_loaded)
-    segmentor_loaded = bool(vision_service.segmentor and vision_service.segmentor.is_loaded)
-    depth_loaded = bool(vision_service.depth_model and vision_service.depth_model.is_loaded)
+    segmentor_loaded = vision_service.is_segmentor_loaded
+    depth_loaded = vision_service.is_depth_model_loaded
     distance_loaded = bool(vision_service.distance_estimator and vision_service.distance_estimator.is_initialized)
 
     return {
@@ -40,12 +41,25 @@ def health_check():
 def readiness_check(response: Response):
     """
     Readiness probe verifying that core AI components are loaded and ready to serve inference requests.
-    Returns 200 OK when ready, or 503 Service Unavailable when core AI components are down.
+    Returns 200 OK when ready (detector initialized), without triggering lazy model loading for optional models.
     """
     detector_status = "ready" if (vision_service.detector and vision_service.detector.is_loaded) else "unavailable"
     tracker_status = "ready"
-    segmentor_status = "ready" if (vision_service.segmentor and vision_service.segmentor.is_loaded) else "unavailable"
-    depth_status = "ready" if (vision_service.depth_model and vision_service.depth_model.is_loaded) else "unavailable"
+    
+    if vision_service.is_segmentor_loaded:
+        segmentor_status = "ready"
+    elif settings.SEGMENTATION_ENABLED:
+        segmentor_status = "lazy"
+    else:
+        segmentor_status = "disabled"
+
+    if vision_service.is_depth_model_loaded:
+        depth_status = "ready"
+    elif settings.DEPTH_ENABLED:
+        depth_status = "lazy"
+    else:
+        depth_status = "disabled"
+
     distance_status = "ready" if (vision_service.distance_estimator and vision_service.distance_estimator.is_initialized) else "unavailable"
 
     is_ready = detector_status == "ready"

@@ -27,33 +27,35 @@ export const DebugHUD: React.FC<DebugHUDProps> = ({ telemetry, isStreaming }) =>
 
   const healthColor =
     healthStatus === 'REAL-TIME'
-      ? 'text-emerald-400 bg-emerald-950/80 ring-emerald-500/30'
+      ? 'text-emerald-700 bg-emerald-50 border-emerald-200'
       : healthStatus === 'STABLE'
-      ? 'text-cyan-400 bg-cyan-950/80 ring-cyan-500/30'
+      ? 'text-[#9A7B3E] bg-amber-50 border-amber-200'
       : healthStatus === 'DEGRADED'
-      ? 'text-amber-400 bg-amber-950/80 ring-amber-500/30'
-      : 'text-rose-400 bg-rose-950/80 ring-rose-500/30';
+      ? 'text-amber-700 bg-amber-50 border-amber-200'
+      : 'text-rose-700 bg-rose-50 border-rose-200';
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/60 p-4.5 backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="flex flex-col gap-4 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
         <div className="flex items-center gap-2">
-          <Gauge className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-xs font-extrabold tracking-wider text-slate-200 uppercase">
-            Technical Telemetry & Latency Console
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-100 text-stone-800 border border-stone-200">
+            <Gauge className="h-4 w-4 text-[#C5A059]" />
+          </div>
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+            Engineering Telemetry & Diagnostics
           </h2>
         </div>
         <div className="flex items-center gap-3 text-xs">
-          <span className={`rounded px-2.5 py-0.5 font-mono text-xs font-extrabold ring-1 ${healthColor}`}>
+          <span className={`rounded-md px-2.5 py-1 font-mono text-xs font-bold border ${healthColor}`}>
             {healthStatus}
           </span>
           {telemetry.backendOnline ? (
-            <span className="flex items-center gap-1.5 font-semibold text-emerald-400">
+            <span className="flex items-center gap-1.5 font-bold text-emerald-700">
               <Wifi className="h-3.5 w-3.5" />
               API Connected
             </span>
           ) : (
-            <span className="flex items-center gap-1.5 font-semibold text-rose-400">
+            <span className="flex items-center gap-1.5 font-bold text-rose-600">
               <WifiOff className="h-3.5 w-3.5" />
               API Offline
             </span>
@@ -61,91 +63,90 @@ export const DebugHUD: React.FC<DebugHUDProps> = ({ telemetry, isStreaming }) =>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {/* Metric 1: Camera FPS */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Real-Time HTML5 Camera Capture Frame Rate (fps)">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Activity className="h-4 w-4 text-cyan-400" />
-            <span className="text-xs font-bold text-slate-300">Camera FPS</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <Activity className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">Camera Capture</span>
           </div>
-          <p className="mt-1.5 font-mono text-xl font-black text-slate-100">
-            {isStreaming ? telemetry.cameraFps : '--'}
+          <p className="mt-1.5 font-mono text-xl font-extrabold text-stone-900">
+            {isStreaming ? `${telemetry.cameraFps} FPS` : '--'}
           </p>
         </div>
 
         {/* Metric 2: AI FPS */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Measured Backend Neural Model Execution Rate (fps)">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Gauge className="h-4 w-4 text-purple-400" />
-            <span className="text-xs font-bold text-slate-300">AI FPS</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <Gauge className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">AI Inference Rate</span>
           </div>
-          <p className="mt-1.5 font-mono text-xl font-black text-cyan-300">
-            {isStreaming && telemetry.backendOnline ? telemetry.aiFps : '--'}
+          <p className="mt-1.5 font-mono text-xl font-extrabold text-[#9A7B3E]">
+            {isStreaming && telemetry.backendOnline ? `${telemetry.aiFps} FPS` : '--'}
           </p>
         </div>
 
         {/* Metric 3: Pipeline Breakdown */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Sequential Stage Latencies: Detection / Tracking / Segmentation / Depth / Distance (ms)">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Clock className="h-4 w-4 text-indigo-400" />
-            <span className="text-xs font-bold text-slate-300">Stage Latencies</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <Clock className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">Stage Latencies</span>
           </div>
-          <p className="mt-1.5 font-mono text-xs font-black text-slate-100 truncate">
+          <p className="mt-1.5 font-mono text-xs font-bold text-stone-900 truncate">
             {isStreaming && telemetry.backendOnline
-              ? `${formatMs(telemetry.latencyMs)}/${formatMs(telemetry.trackingLatencyMs)}/${formatMs(telemetry.segmentationLatencyMs)}/${formatMs(telemetry.depthLatencyMs)}/${formatMs(telemetry.distanceLatencyMs)} ms`
+              ? `${formatMs(telemetry.latencyMs)} / ${formatMs(telemetry.trackingLatencyMs)} / ${formatMs(telemetry.segmentationLatencyMs)} / ${formatMs(telemetry.depthLatencyMs)} / ${formatMs(telemetry.distanceLatencyMs)} ms`
               : 'N/A'}
           </p>
         </div>
 
         {/* Metric 4: P50 / P95 Percentiles */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Statistical End-to-End Latency Percentiles (P50 average / P95 tail latency)">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <BarChart2 className="h-4 w-4 text-amber-400" />
-            <span className="text-xs font-bold text-slate-300">P50 / P95</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <BarChart2 className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">P50 / P95 Latency</span>
           </div>
-          <p className="mt-1.5 font-mono text-xs font-black text-slate-100 truncate">
+          <p className="mt-1.5 font-mono text-sm font-bold text-stone-900 truncate">
             {isStreaming && telemetry.backendOnline ? `${p50} ms / ${p95} ms` : '--'}
           </p>
         </div>
 
         {/* Metric 5: Active Targets Breakdown */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Active Detections Breakdown: (Tracked / Segmented / Depth / Distance)">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Target className="h-4 w-4 text-emerald-400" />
-            <span className="text-xs font-bold text-slate-300">Active Targets</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <Target className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">Active Targets</span>
           </div>
-          <p className="mt-1.5 font-mono text-xs font-black text-slate-100 truncate">
+          <p className="mt-1.5 font-mono text-sm font-bold text-stone-900 truncate">
             {isStreaming && telemetry.backendOnline
-              ? `${telemetry.objectCount} (${telemetry.activeTrackCount}/${telemetry.activeMaskCount}/${telemetry.activeDepthCount}/${telemetry.activeDistanceCount})`
+              ? `${telemetry.objectCount} (${telemetry.activeTrackCount} tracked)`
               : 0}
           </p>
         </div>
 
         {/* Metric 6: Hardware Engine */}
-        <div className="rounded-xl border border-slate-800/90 bg-slate-950/70 p-3 transition-colors hover:border-cyan-500/30" title="Active PyTorch Execution Hardware Engine & Model Name">
-          <div className="flex items-center gap-1.5 text-slate-400">
-            <Cpu className="h-4 w-4 text-cyan-400" />
-            <span className="text-xs font-bold text-slate-300">Hardware Engine</span>
+        <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-3.5">
+          <div className="flex items-center gap-1.5 text-stone-500">
+            <Cpu className="h-4 w-4 text-[#C5A059]" />
+            <span className="text-xs font-bold uppercase tracking-wider">Hardware Target</span>
           </div>
-          <p className="mt-1.5 font-mono text-xs font-black text-slate-200 truncate">
+          <p className="mt-1.5 font-mono text-xs font-bold text-stone-800 truncate">
             {telemetry.modelName} ({telemetry.device.toUpperCase()})
           </p>
         </div>
       </div>
 
-      {/* Developer Distance Validation Panel */}
-      <div className="mt-1 rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-3.5 backdrop-blur-sm">
+      {/* Distance Calibration Curve Summary */}
+      <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs font-extrabold text-cyan-300 uppercase tracking-wider">
-            <Gauge className="h-4 w-4 text-cyan-400" />
-            <span>Developer Distance Measurement Validation</span>
-          </div>
-          <span className="rounded bg-cyan-950/80 px-2 py-0.5 text-[10px] font-bold text-cyan-400 ring-1 ring-cyan-500/30">
-            CALIBRATION ACTIVE
+          <span className="text-xs font-bold text-[#9A7B3E] uppercase tracking-wider">
+            Monocular Distance Calibration Equation
+          </span>
+          <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-[#9A7B3E] border border-amber-200">
+            Z = a / (depth + b)
           </span>
         </div>
-        <p className="mt-1.5 text-xs text-slate-400 leading-relaxed font-sans">
-          Raw monocular distance metrics estimated from MiDaS relative depth and FastSAM mask features using inverse calibration curve <code className="font-mono text-cyan-300 text-[11px]">Z = a / (d + b)</code>. Values are strictly preserved without automatic modification.
+        <p className="mt-1.5 text-xs text-stone-600 font-sans">
+          Calibrated using reference depth values and FastSAM bounding metrics for accurate non-intrusive distance estimation.
         </p>
       </div>
     </div>

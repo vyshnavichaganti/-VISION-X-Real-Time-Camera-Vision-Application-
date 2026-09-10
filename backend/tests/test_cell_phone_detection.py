@@ -41,7 +41,7 @@ class TestCellPhoneDetectionPipeline(unittest.TestCase):
         Verify that cell phone objects are detected at 0.25 confidence threshold.
         """
         # Load or create test phone image
-        phone_img_path = "scratch/test_phone1.jpg"
+        phone_img_path = os.path.join(os.path.dirname(__file__), "fixtures", "test_phone1.jpg")
         if not os.path.exists(phone_img_path):
             img = Image.new("RGB", (640, 640), color=(150, 150, 150))
             draw = ImageDraw.Draw(img)
@@ -89,7 +89,7 @@ class TestCellPhoneDetectionPipeline(unittest.TestCase):
         """
         Verify FastSAM mask and Calibrated Distance are correctly attached to detected cell phone object.
         """
-        phone_img_path = "scratch/test_phone1.jpg"
+        phone_img_path = os.path.join(os.path.dirname(__file__), "fixtures", "test_phone1.jpg")
         if os.path.exists(phone_img_path):
             img = Image.open(phone_img_path)
             buf = io.BytesIO()

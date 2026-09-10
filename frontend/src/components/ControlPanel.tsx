@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Square, Video, Sliders, Eye, Ruler, Activity, Cpu, ChevronDown, ChevronUp, Sparkles, RotateCcw } from 'lucide-react';
+import { Play, Square, Video, Sliders, Eye, ChevronDown, ChevronUp, RotateCcw, Cpu } from 'lucide-react';
 import type { CameraDevice, Resolution } from '../types/vision';
 
 interface ControlPanelProps {
@@ -34,7 +34,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   confidenceThreshold,
   inferenceSize,
   backendOnline,
-  demoMode,
   onStartCamera,
   onStopCamera,
   onResetTracking,
@@ -43,40 +42,43 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onToggleDetection,
   onConfidenceChange,
   onInferenceSizeChange,
-  onToggleDemoMode,
 }) => {
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
 
   return (
-    <div className="flex flex-col gap-5 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
+    <div className="flex flex-col gap-5 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       {/* Header & Status Indicator */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
         <div className="flex items-center gap-2">
-          <Sliders className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-xs font-extrabold tracking-wider text-slate-200 uppercase">
-            Camera & Vision Controls
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-[#9A7B3E] border border-amber-200">
+            <Sliders className="h-4 w-4" />
+          </div>
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+            Camera Controls
           </h2>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono font-semibold">
-          <Activity
-            className={`h-3.5 w-3.5 ${backendOnline ? 'text-emerald-400' : 'text-rose-500'}`}
+          <span
+            className={`h-2 w-2 rounded-full ${
+              backendOnline ? 'bg-emerald-500' : 'bg-rose-500'
+            }`}
           />
-          <span className={backendOnline ? 'text-emerald-400' : 'text-rose-400'}>
-            {backendOnline ? 'AI CONNECTED' : 'AI OFFLINE'}
+          <span className={backendOnline ? 'text-emerald-700' : 'text-rose-600'}>
+            {backendOnline ? 'AI Connected' : 'AI Offline'}
           </span>
         </div>
       </div>
 
-      {/* Main Action Buttons Grid: Start Camera | Stop Camera | Reset Tracking */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      {/* Main Action Buttons Grid: Start Camera | Stop Camera */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
           onClick={onStartCamera}
           disabled={isStreaming || isLoading}
           aria-label="Start Camera"
-          className={`flex items-center justify-center gap-2 rounded-xl py-3 px-3 text-xs font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 ${
+          className={`flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold transition-all focus:outline-none cursor-pointer ${
             isStreaming || isLoading
-              ? 'cursor-not-allowed border border-slate-800 bg-slate-900/40 text-slate-600'
-              : 'bg-cyan-500 text-slate-950 hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20 active:scale-95'
+              ? 'cursor-not-allowed border border-stone-200 bg-stone-100 text-stone-400'
+              : 'bg-[#C5A059] text-white hover:bg-[#B38F48] shadow-sm active:scale-95'
           }`}
         >
           <Play className="h-4 w-4 fill-current shrink-0" />
@@ -87,43 +89,44 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           onClick={onStopCamera}
           disabled={!isStreaming || isLoading}
           aria-label="Stop Camera"
-          className={`flex items-center justify-center gap-2 rounded-xl py-3 px-3 text-xs font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-400 ${
+          className={`flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold transition-all focus:outline-none cursor-pointer ${
             !isStreaming || isLoading
-              ? 'cursor-not-allowed border border-slate-800 bg-slate-900/40 text-slate-600'
-              : 'border border-rose-500/40 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 active:scale-95'
+              ? 'cursor-not-allowed border border-stone-200 bg-stone-100 text-stone-400'
+              : 'border border-rose-300 bg-rose-50 text-rose-700 hover:bg-rose-100 active:scale-95'
           }`}
         >
           <Square className="h-4 w-4 fill-current shrink-0" />
           <span>Stop Camera</span>
         </button>
-
-        <button
-          onClick={onResetTracking}
-          disabled={!isStreaming || isLoading}
-          aria-label="Reset ByteTrack Tracking"
-          className={`flex items-center justify-center gap-2 rounded-xl py-3 px-3 text-xs font-bold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
-            !isStreaming || isLoading
-              ? 'cursor-not-allowed border border-slate-800 bg-slate-900/40 text-slate-600'
-              : 'border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 active:scale-95'
-          }`}
-        >
-          <RotateCcw className="h-4 w-4 shrink-0" />
-          <span>Reset Tracking</span>
-        </button>
       </div>
 
+      {/* Reset Tracking Button */}
+      <button
+        onClick={onResetTracking}
+        disabled={!isStreaming || isLoading}
+        aria-label="Reset Tracking"
+        className={`flex items-center justify-center gap-2 rounded-xl py-2.5 px-4 text-xs font-bold transition-all border ${
+          !isStreaming || isLoading
+            ? 'cursor-not-allowed border-stone-200 bg-stone-50 text-stone-400'
+            : 'border-amber-300 bg-amber-50 text-[#9A7B3E] hover:bg-amber-100 active:scale-95 cursor-pointer'
+        }`}
+      >
+        <RotateCcw className="h-3.5 w-3.5 shrink-0" />
+        <span>Reset Tracking</span>
+      </button>
+
       {/* Selectors: Device & Resolution */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4">
         {/* Device Selection */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-            <Video className="h-3.5 w-3.5 text-slate-400" />
+          <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600">
+            <Video className="h-3.5 w-3.5 text-[#C5A059]" />
             Input Camera Device
           </label>
           <select
             value={activeDeviceId}
             onChange={(e) => onDeviceChange(e.target.value)}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-medium text-slate-200 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-medium text-stone-800 transition-colors focus:border-[#C5A059] focus:outline-none focus:bg-white"
           >
             {devices.length === 0 ? (
               <option value="">Default Web Camera</option>
@@ -139,56 +142,27 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
         {/* Resolution Selection */}
         <div className="space-y-1.5">
-          <label className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-            <Sliders className="h-3.5 w-3.5 text-slate-400" />
+          <label className="flex items-center gap-1.5 text-xs font-bold text-stone-600">
+            <Sliders className="h-3.5 w-3.5 text-[#C5A059]" />
             Frame Resolution
           </label>
           <select
             value={resolution}
             onChange={(e) => onResolutionChange(e.target.value as Resolution)}
-            className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs font-medium text-slate-200 transition-colors focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-xs font-medium text-stone-800 transition-colors focus:border-[#C5A059] focus:outline-none focus:bg-white"
           >
             <option value="480p">480p (640 × 480) • Fast</option>
             <option value="720p">720p (1280 × 720) • Balanced</option>
-            <option value="1080p">1080p (1920 × 1080) • HD</option>
+            <option value="1080p">1080p (1920 × 1080) • High Quality</option>
           </select>
         </div>
       </div>
 
-      {/* Demo Mode Presentation Toggle */}
-      <button
-        onClick={onToggleDemoMode}
-        className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
-          demoMode
-            ? 'border-purple-500/60 bg-purple-950/30 text-purple-200 shadow-md shadow-purple-500/10'
-            : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <Sparkles className={`h-4 w-4 ${demoMode ? 'text-purple-400 animate-pulse' : 'text-slate-500'}`} />
-          <div className="text-left">
-            <p className="text-xs font-semibold">Demo Presentation Mode</p>
-            <p className="text-[10px] text-slate-400">Cinematic HUD layout for project presentations</p>
-          </div>
-        </div>
-        <div
-          className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
-            demoMode ? 'bg-purple-500' : 'bg-slate-800'
-          }`}
-        >
-          <div
-            className={`h-4 w-4 rounded-full bg-slate-950 transition-transform ${
-              demoMode ? 'translate-x-4' : 'translate-x-0'
-            }`}
-          />
-        </div>
-      </button>
-
-      {/* Advanced Controls Collapsible Drawer */}
-      <div className="border-t border-slate-800/80 pt-3">
+      {/* Advanced Settings Collapsible Drawer */}
+      <div className="border-t border-stone-100 pt-3">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex w-full items-center justify-between py-1 text-xs font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-200 transition-colors"
+          className="flex w-full items-center justify-between py-1 text-xs font-bold uppercase tracking-wider text-stone-500 hover:text-stone-800 transition-colors cursor-pointer"
         >
           <span>Advanced AI Settings</span>
           {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -199,26 +173,26 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             {/* Object Detection Toggle */}
             <button
               onClick={onToggleDetection}
-              className={`flex items-center justify-between rounded-xl border p-3 transition-all ${
+              className={`flex items-center justify-between rounded-xl border p-3 transition-all cursor-pointer ${
                 detectionEnabled
-                  ? 'border-cyan-500/60 bg-cyan-950/30 text-cyan-200'
-                  : 'border-slate-800 bg-slate-950/40 text-slate-400 hover:border-slate-700'
+                  ? 'border-amber-300 bg-amber-50/60 text-stone-900'
+                  : 'border-stone-200 bg-stone-50 text-stone-500'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Eye className={`h-4 w-4 ${detectionEnabled ? 'text-cyan-400 animate-pulse' : 'text-slate-500'}`} />
+                <Eye className={`h-4 w-4 ${detectionEnabled ? 'text-[#C5A059]' : 'text-stone-400'}`} />
                 <div className="text-left">
-                  <p className="text-xs font-semibold">Object Detection</p>
-                  <p className="text-[10px] text-slate-400">YOLOv8 PyTorch Engine</p>
+                  <p className="text-xs font-bold">Object Detection</p>
+                  <p className="text-[10px] text-stone-500">YOLOv8 PyTorch Engine</p>
                 </div>
               </div>
               <div
                 className={`h-5 w-9 rounded-full p-0.5 transition-colors ${
-                  detectionEnabled ? 'bg-cyan-500' : 'bg-slate-800'
+                  detectionEnabled ? 'bg-[#C5A059]' : 'bg-stone-300'
                 }`}
               >
                 <div
-                  className={`h-4 w-4 rounded-full bg-slate-950 transition-transform ${
+                  className={`h-4 w-4 rounded-full bg-white transition-transform ${
                     detectionEnabled ? 'translate-x-4' : 'translate-x-0'
                   }`}
                 />
@@ -227,26 +201,26 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
 
             {/* Model Inference Size & Confidence Threshold */}
             {detectionEnabled && (
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1 rounded-xl border border-slate-800/60 bg-slate-950/50 p-2.5">
-                  <label className="flex items-center gap-1 text-[11px] text-slate-400">
-                    <Cpu className="h-3 w-3 text-cyan-400" />
+              <div className="flex flex-col gap-3">
+                <div className="space-y-1 rounded-xl border border-stone-200 bg-stone-50 p-3">
+                  <label className="flex items-center gap-1 text-xs font-bold text-stone-600">
+                    <Cpu className="h-3.5 w-3.5 text-[#C5A059]" />
                     Inference Size
                   </label>
                   <select
                     value={inferenceSize}
                     onChange={(e) => onInferenceSizeChange(parseInt(e.target.value, 10))}
-                    className="w-full rounded-lg border border-slate-800 bg-slate-950 px-2 py-1 text-xs font-medium text-slate-200 focus:border-cyan-500 focus:outline-none"
+                    className="w-full rounded-lg border border-stone-200 bg-white px-2 py-1.5 text-xs font-medium text-stone-800 focus:border-[#C5A059] focus:outline-none"
                   >
                     <option value={320}>320 × 320 (Ultra Fast)</option>
                     <option value={640}>640 × 640 (Standard)</option>
                   </select>
                 </div>
 
-                <div className="space-y-1 rounded-xl border border-slate-800/60 bg-slate-950/50 p-2.5">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400">Confidence:</span>
-                    <span className="font-mono font-bold text-cyan-300">
+                <div className="space-y-1 rounded-xl border border-stone-200 bg-stone-50 p-3">
+                  <div className="flex items-center justify-between text-xs font-bold text-stone-600">
+                    <span>Confidence Threshold:</span>
+                    <span className="font-mono text-[#9A7B3E]">
                       {Math.round(confidenceThreshold * 100)}%
                     </span>
                   </div>
@@ -257,25 +231,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                     step="0.05"
                     value={confidenceThreshold}
                     onChange={(e) => onConfidenceChange(parseFloat(e.target.value))}
-                    className="w-full accent-cyan-500 cursor-pointer"
+                    className="w-full accent-[#C5A059] cursor-pointer"
                   />
                 </div>
               </div>
             )}
-
-            {/* Calibrated Distance Status Indicator */}
-            <div className="flex items-center justify-between rounded-xl border border-cyan-500/60 bg-cyan-950/30 p-3 text-cyan-200">
-              <div className="flex items-center gap-2.5">
-                <Ruler className="h-4 w-4 text-cyan-400" />
-                <div className="text-left">
-                  <p className="text-xs font-semibold text-slate-200">Calibrated Monocular Distance (~m)</p>
-                  <p className="text-[10px] text-slate-400">FastSAM Mask + MiDaS Depth Calibrated</p>
-                </div>
-              </div>
-              <span className="rounded bg-emerald-950/80 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-400 ring-1 ring-emerald-500/30">
-                ACTIVE
-              </span>
-            </div>
           </div>
         )}
       </div>

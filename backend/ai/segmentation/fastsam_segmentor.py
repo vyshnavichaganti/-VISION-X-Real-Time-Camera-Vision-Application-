@@ -8,6 +8,8 @@ from typing import List, Tuple, Dict, Any, Optional
 from PIL import Image
 import torch
 
+import gc
+
 from ai.segmentation.base_segmentor import BaseSegmentor
 from app.schemas.vision import DetectionObjectSchema, SegmentationMaskSchema
 from app.core.config import settings
@@ -59,6 +61,9 @@ class FastSAMSegmentor(BaseSegmentor):
                     self.model.predict(source=dummy_img, imgsz=settings.INFERENCE_SIZE, device=self.device, verbose=False)
                 else:
                     self.model(dummy_img, imgsz=settings.INFERENCE_SIZE, device=self.device, verbose=False)
+
+            del dummy_img
+            gc.collect()
 
             end_time = time.perf_counter()
             self.load_time_ms = (end_time - start_time) * 1000.0

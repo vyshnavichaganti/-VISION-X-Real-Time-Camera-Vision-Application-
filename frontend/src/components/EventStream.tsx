@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Activity, Radio, Target, ShieldCheck, ChevronDown, ChevronUp } from 'lucide-react';
+import React from 'react';
+import { ScrollText, Radio } from 'lucide-react';
 import type { AIEvent } from '../types/vision';
 
 interface EventStreamProps {
@@ -7,83 +7,49 @@ interface EventStreamProps {
   defaultExpanded?: boolean;
 }
 
-export const EventStream: React.FC<EventStreamProps> = ({ events, defaultExpanded = false }) => {
-  const [isExpanded, setIsExpanded] = useState<boolean>(defaultExpanded);
-
-  useEffect(() => {
-    setIsExpanded(defaultExpanded);
-  }, [defaultExpanded]);
-
+export const EventStream: React.FC<EventStreamProps> = ({ events }) => {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between border-b border-slate-800 pb-2.5 text-left transition-colors hover:text-slate-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded-lg"
-        aria-expanded={isExpanded}
-        aria-label="Toggle Live AI Event Stream Log"
-      >
+    <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
         <div className="flex items-center gap-2">
-          <Activity className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-xs font-extrabold tracking-wider text-slate-200 uppercase">
-            Live AI Event Stream
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-stone-100 text-stone-800 border border-stone-200">
+            <ScrollText className="h-4 w-4 text-[#C5A059]" />
+          </div>
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+            Real-Time Vision Event Log
           </h2>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold text-slate-400">
-            {events.length} EVENTS
-          </span>
-          {isExpanded ? (
-            <ChevronUp className="h-4 w-4 text-slate-400" />
-          ) : (
-            <ChevronDown className="h-4 w-4 text-slate-400" />
-          )}
+        <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-emerald-700">
+          <Radio className="h-3.5 w-3.5 animate-pulse" />
+          <span>{events.length} EVENTS</span>
         </div>
-      </button>
+      </div>
 
-      {isExpanded && (
-        <div className="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1">
-          {events.length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-500 font-sans">
-              No event logs recorded. Start camera stream to log live detections.
-            </p>
-          ) : (
-            events.map((ev) => {
-              const Icon =
-                ev.type === 'tracking'
-                  ? Target
-                  : ev.type === 'distance'
-                  ? Radio
-                  : ev.type === 'system'
-                  ? ShieldCheck
-                  : Activity;
-
-              const iconColor =
-                ev.type === 'tracking'
-                  ? 'text-cyan-400'
-                  : ev.type === 'distance'
-                  ? 'text-emerald-400'
-                  : ev.type === 'system'
-                  ? 'text-amber-400'
-                  : 'text-purple-400';
-
-              return (
-                <div
-                  key={ev.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-slate-800/80 bg-slate-950/70 px-3 py-2 text-xs transition-colors hover:bg-slate-900/60"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <Icon className={`h-3.5 w-3.5 ${iconColor} shrink-0`} />
-                    <span className="font-sans font-medium text-slate-200 truncate">{ev.message}</span>
-                  </div>
-                  <span className="font-mono text-[11px] text-slate-400 shrink-0">
-                    {ev.timestamp}
+      <div className="max-h-60 overflow-y-auto space-y-2 font-mono text-xs pr-1">
+        {events.length === 0 ? (
+          <div className="py-8 text-center text-stone-400 font-sans text-xs font-medium">
+            No pipeline events recorded yet.
+          </div>
+        ) : (
+          events.slice(-15).reverse().map((evt) => {
+            const timeStr = new Date(evt.timestamp).toLocaleTimeString();
+            return (
+              <div
+                key={evt.id}
+                className="flex items-start justify-between gap-3 rounded-lg border border-stone-100 bg-stone-50/80 p-2.5 transition-colors hover:bg-stone-100/60"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-[#9A7B3E] uppercase border border-amber-200">
+                    {evt.type}
                   </span>
+                  <span className="font-bold text-stone-800 font-sans text-xs">{evt.message}</span>
                 </div>
-              );
-            })
-          )}
-        </div>
-      )}
+                <span className="text-[11px] text-stone-400 shrink-0 font-mono">{timeStr}</span>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };

@@ -9,6 +9,8 @@ import numpy as np
 from PIL import Image, ImageDraw
 import torch
 
+import gc
+
 from ai.depth.base_depth_model import BaseDepthModel
 from app.schemas.vision import DetectionObjectSchema, DepthSummarySchema
 from app.core.config import settings
@@ -65,6 +67,9 @@ class MiDaSDepthModel(BaseDepthModel):
 
             with torch.inference_mode():
                 _ = self.model(input_batch)
+
+            del dummy_img, dummy_np, input_batch
+            gc.collect()
 
             end_time = time.perf_counter()
             self.load_time_ms = (end_time - start_time) * 1000.0

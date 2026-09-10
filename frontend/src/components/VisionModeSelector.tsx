@@ -21,17 +21,17 @@ export const VisionModeSelector: React.FC<VisionModeSelectorProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-2 rounded-2xl border border-slate-800 bg-slate-900/60 p-3 backdrop-blur-md">
+    <div className="flex flex-col gap-2 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between px-1">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+        <span className="text-xs font-bold uppercase tracking-wider text-stone-500">
           Vision Mode Filter
         </span>
-        <span className="text-[10px] font-mono text-cyan-400 font-semibold uppercase">
+        <span className="text-xs font-mono text-[#9A7B3E] font-bold uppercase">
           {currentMode}
         </span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-1.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
         {modes.map((mode) => {
           const Icon = mode.icon;
           const isActive = currentMode === mode.id;
@@ -40,14 +40,14 @@ export const VisionModeSelector: React.FC<VisionModeSelectorProps> = ({
               key={mode.id}
               onClick={() => onSelectMode(mode.id)}
               title={mode.desc}
-              className={`flex flex-col items-center justify-center gap-1 rounded-xl p-2 text-center transition-all ${
+              className={`flex flex-col items-center justify-center gap-1 rounded-xl p-2.5 text-center transition-all cursor-pointer ${
                 isActive
-                  ? 'border border-cyan-500/60 bg-cyan-950/60 text-cyan-200 shadow-md shadow-cyan-500/10 ring-1 ring-cyan-500/30'
-                  : 'border border-slate-800/60 bg-slate-950/40 text-slate-400 hover:border-slate-700 hover:text-slate-200'
+                  ? 'border border-amber-300 bg-amber-50 text-[#9A7B3E] font-bold shadow-sm'
+                  : 'border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100 hover:text-stone-900'
               }`}
             >
-              <Icon className={`h-4 w-4 ${isActive ? 'text-cyan-400 animate-pulse' : 'text-slate-500'}`} />
-              <span className="text-[11px] font-semibold tracking-tight">{mode.label}</span>
+              <Icon className={`h-4 w-4 ${isActive ? 'text-[#C5A059]' : 'text-stone-400'}`} />
+              <span className="text-xs tracking-tight">{mode.label}</span>
             </button>
           );
         })}

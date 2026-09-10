@@ -61,7 +61,7 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
   return (
     <div
       ref={containerRef}
-      className="relative aspect-video w-full overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/90 ring-1 ring-cyan-500/20 shadow-2xl shadow-cyan-950/40 group hover:ring-cyan-500/40 transition-all duration-300"
+      className="relative aspect-video w-full overflow-hidden rounded-2xl border border-amber-200/80 bg-stone-900 shadow-md group transition-all duration-300"
     >
       {/* HTML5 Video Layer */}
       <video
@@ -82,63 +82,63 @@ export const CameraFeed: React.FC<CameraFeedProps> = ({
 
       {/* Idle / Off Placeholder */}
       {!isStreaming && !isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/95 p-6 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-950/50 ring-1 ring-cyan-500/40 shadow-lg shadow-cyan-500/10">
-            <Camera className="h-8 w-8 text-cyan-400" />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-stone-900/95 p-6 text-center text-white">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-stone-800 border border-amber-500/40 shadow-lg text-[#C5A059]">
+            <Camera className="h-8 w-8" />
           </div>
           <div className="max-w-md space-y-1.5">
-            <h3 className="text-base font-semibold text-slate-100 tracking-wide">AI REAL-TIME VISION • HERO VIEWPORT</h3>
-            <p className="text-xs text-slate-400">
-              YOLOv8 Detection • ByteTrack Tracking • FastSAM Segmentation • MiDaS Depth • Metric Distance (~m)
+            <h3 className="text-base font-bold tracking-wide text-white">REAL-TIME CAMERA PREVIEW</h3>
+            <p className="text-xs text-stone-300">
+              Point your camera to detect objects, track motion, segment boundaries, and estimate distance in real time.
             </p>
           </div>
           <button
             onClick={onStartCamera}
-            className="mt-2 flex items-center gap-2 rounded-xl bg-cyan-500 px-6 py-3 text-sm font-bold text-slate-950 transition-all hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 active:scale-95"
+            className="mt-2 flex items-center gap-2 rounded-xl bg-[#C5A059] px-6 py-3 text-sm font-bold text-white transition-all hover:bg-[#B38F48] shadow-md active:scale-95 cursor-pointer"
             aria-label="Start Camera Stream"
           >
             <Camera className="h-4 w-4" />
-            START CAMERA STREAM
+            START CAMERA
           </button>
         </div>
       )}
 
       {/* Loading Overlay */}
       {isLoading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-slate-950/85 backdrop-blur-md">
-          <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
-          <p className="text-xs font-semibold tracking-wide text-cyan-300 uppercase font-mono">
-            INITIALIZING CAMERA STREAM & VISION PIPELINE...
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-stone-900/90 backdrop-blur-sm text-white">
+          <Loader2 className="h-10 w-10 animate-spin text-[#C5A059]" />
+          <p className="text-xs font-semibold tracking-wider text-amber-200 uppercase font-sans">
+            Initializing camera stream & vision pipeline...
           </p>
         </div>
       )}
 
-      {/* Live Stream Status Badges & Fullscreen Controls */}
+      {/* Live Stream Badges & Fullscreen Controls */}
       {isStreaming && (
         <>
           <div className="absolute left-4 top-4 flex items-center gap-2">
-            <div className="flex items-center gap-2 rounded-full bg-slate-950/80 px-3 py-1 text-xs font-bold text-emerald-400 backdrop-blur-md ring-1 ring-emerald-500/30">
+            <div className="flex items-center gap-2 rounded-full bg-stone-900/80 px-3 py-1 text-xs font-bold text-emerald-400 backdrop-blur-md border border-emerald-500/30">
               <span className="h-2 w-2 animate-ping rounded-full bg-emerald-400" />
               LIVE
             </div>
             {fps !== undefined && (
-              <div className="flex items-center gap-1.5 rounded-full bg-slate-950/80 px-3 py-1 text-xs font-mono font-bold text-cyan-300 backdrop-blur-md ring-1 ring-slate-800">
-                <Activity className="h-3.5 w-3.5 text-cyan-400" />
+              <div className="flex items-center gap-1.5 rounded-full bg-stone-900/80 px-3 py-1 text-xs font-mono font-bold text-amber-300 backdrop-blur-md border border-amber-500/30">
+                <Activity className="h-3.5 w-3.5 text-[#C5A059]" />
                 {fps} FPS
               </div>
             )}
-            <div className="flex items-center gap-1.5 rounded-full bg-slate-950/80 px-3 py-1 text-xs font-mono font-bold text-purple-300 backdrop-blur-md ring-1 ring-slate-800 uppercase">
-              <Eye className="h-3.5 w-3.5 text-purple-400" />
+            <div className="flex items-center gap-1.5 rounded-full bg-stone-900/80 px-3 py-1 text-xs font-mono font-bold text-stone-200 backdrop-blur-md border border-stone-700 uppercase">
+              <Eye className="h-3.5 w-3.5 text-stone-400" />
               {visionMode}
             </div>
           </div>
 
-          <div className="absolute right-4 top-4 opacity-90 group-hover:opacity-100 transition-opacity">
+          <div className="absolute right-4 top-4">
             <button
               onClick={toggleFullscreen}
-              aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Vision'}
-              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen Vision'}
-              className="flex items-center justify-center rounded-xl bg-slate-950/80 p-2 text-slate-200 backdrop-blur-md ring-1 ring-slate-800 hover:bg-slate-900 hover:text-cyan-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+              aria-label={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+              className="flex items-center justify-center rounded-xl bg-stone-900/80 p-2 text-white backdrop-blur-md border border-stone-700 hover:bg-stone-800 hover:text-amber-300 focus:outline-none transition-colors cursor-pointer"
             >
               {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>

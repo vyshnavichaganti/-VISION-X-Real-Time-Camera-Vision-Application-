@@ -12,79 +12,69 @@ export const ObjectIntelligenceTable: React.FC<ObjectIntelligenceTableProps> = (
   isStreaming,
 }) => {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 backdrop-blur-md">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-stone-100 pb-3">
         <div className="flex items-center gap-2">
-          <Layers className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-xs font-extrabold tracking-wider text-slate-200 uppercase">
-            LIVE DETECTED OBJECTS
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-[#9A7B3E] border border-amber-200">
+            <Layers className="h-4 w-4" />
+          </div>
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+            Detected Objects
           </h2>
         </div>
-        <span className="font-mono text-xs font-bold text-cyan-300">
-          {isStreaming ? `${detections.length} ACTIVE` : '0 OBJECTS'}
+        <span className="font-mono text-xs font-bold text-stone-600 bg-stone-100 px-2.5 py-1 rounded-md">
+          {isStreaming && detections ? `${detections.length} Detected` : '0 Objects'}
         </span>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm font-sans border-collapse">
+        <table className="w-full text-left text-sm border-collapse">
           <thead>
-            <tr className="border-b border-slate-800 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-950/40">
-              <th className="py-3 px-3.5">OBJECT</th>
-              <th className="py-3 px-3.5">CONFIDENCE</th>
-              <th className="py-3 px-3.5">DISTANCE</th>
-              <th className="py-3 px-3.5 text-right">STATUS</th>
+            <tr className="border-b border-stone-200 text-xs font-bold uppercase tracking-wider text-stone-500 bg-stone-50/70">
+              <th className="py-3 px-4">Object</th>
+              <th className="py-3 px-4">Confidence</th>
+              <th className="py-3 px-4">Distance</th>
+              <th className="py-3 px-4 text-right">Track ID</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60 font-mono">
+          <tbody className="divide-y divide-stone-100 font-sans">
             {!isStreaming || !detections || detections.length === 0 ? (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-slate-500 font-sans text-sm font-medium">
-                  No active targets in camera field of view
+                <td colSpan={4} className="py-10 text-center text-stone-400 text-sm font-medium">
+                  No objects currently detected. Point camera towards a person or object.
                 </td>
               </tr>
             ) : (
               detections.map((obj, idx) => {
-                const idTag = obj.id !== undefined && obj.id !== null ? `#${obj.id}` : ``;
-                const labelCap = `${obj.label.charAt(0).toUpperCase() + obj.label.slice(1)} ${idTag}`.trim();
+                const labelCap = obj.label.charAt(0).toUpperCase() + obj.label.slice(1);
                 const confPercent = `${Math.round(obj.confidence * 100)}%`;
                 
                 let distValue = '--';
-                let qualityTag: 'good' | 'moderate' | 'low' = 'good';
-
                 if (obj.distance?.meters) {
                   distValue = `≈ ${obj.distance.meters.toFixed(1)} m`;
-                  if (obj.distance.quality) {
-                    qualityTag = obj.distance.quality;
-                  }
                 }
+
+                const trackIdStr = obj.id !== undefined && obj.id !== null ? `#${obj.id}` : '--';
 
                 return (
                   <tr
                     key={obj.id !== undefined && obj.id !== null ? `track_${obj.id}` : `obj_${idx}`}
-                    className="hover:bg-slate-800/40 transition-colors"
+                    className="hover:bg-amber-50/40 transition-colors"
                   >
-                    <td className="py-3.5 px-3.5 font-bold text-slate-100 text-sm">{labelCap}</td>
-                    <td className="py-3.5 px-3.5 text-slate-300 font-semibold text-sm">{confPercent}</td>
-                    <td className="py-3.5 px-3.5 font-black text-cyan-300 text-base">
-                      <div className="flex items-center gap-2">
-                        <span>{distValue}</span>
-                        {distValue !== '--' && qualityTag === 'moderate' && (
-                          <span className="rounded bg-amber-950/80 px-2 py-0.5 text-[10px] font-bold text-amber-400 ring-1 ring-amber-500/30 uppercase font-sans">
-                            MODERATE
-                          </span>
-                        )}
-                        {distValue !== '--' && qualityTag === 'low' && (
-                          <span className="rounded bg-rose-950/80 px-2 py-0.5 text-[10px] font-bold text-rose-400 ring-1 ring-rose-500/30 uppercase font-sans">
-                            LOW CONFIDENCE
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-3.5 text-right">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-950/80 px-2.5 py-1 text-xs font-bold text-emerald-400 ring-1 ring-emerald-500/30 font-sans">
-                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                        TRACKED
+                    <td className="py-3.5 px-4 font-bold text-stone-900 text-sm">
+                      <span className="inline-flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-[#C5A059]" />
+                        {labelCap}
                       </span>
+                    </td>
+                    <td className="py-3.5 px-4 text-stone-700 font-semibold font-mono text-sm">
+                      {confPercent}
+                    </td>
+                    <td className="py-3.5 px-4 font-extrabold text-[#9A7B3E] font-mono text-base">
+                      {distValue}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-mono font-bold text-stone-600 text-sm">
+                      {trackIdStr}
                     </td>
                   </tr>
                 );

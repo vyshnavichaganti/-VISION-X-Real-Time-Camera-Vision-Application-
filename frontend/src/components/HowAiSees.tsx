@@ -8,68 +8,65 @@ export const HowAiSees: React.FC = () => {
     {
       title: '1. Object Detection (YOLOv8)',
       icon: Eye,
-      color: 'text-cyan-400',
-      desc: 'Identifies 80 COCO object classes in real-time camera frames and outputs bounding box coordinates with confidence scores.',
+      desc: 'Identifies COCO object classes in real-time camera frames and outputs bounding box coordinates with confidence scores.',
     },
     {
-      title: '2. Persistent Object Tracking (ByteTrack)',
+      title: '2. Object Tracking (ByteTrack)',
       icon: Target,
-      color: 'text-purple-400',
-      desc: 'Assigns persistent numerical tracking IDs (#1, #2...) across sequential video frames using Kalman filter motion estimation and Hungarian IoU matching.',
+      desc: 'Assigns persistent numerical tracking IDs (#1, #2...) across video frames using Kalman filter motion estimation.',
     },
     {
       title: '3. Instance Segmentation (FastSAM)',
       icon: Layers,
-      color: 'text-indigo-400',
-      desc: 'Generates pixel-accurate polygon contour masks to isolate detected target object shapes from scene backgrounds.',
+      desc: 'Generates pixel-accurate polygon contour masks to isolate detected target object shapes.',
     },
     {
-      title: '4. Monocular Depth Estimation (MiDaS)',
+      title: '4. Depth Estimation (MiDaS)',
       icon: Cpu,
-      color: 'text-amber-400',
-      desc: 'Predicts relative spatial scene depth per pixel directly from 2D camera images using deep convolutional features.',
+      desc: 'Predicts relative spatial scene depth per pixel directly from 2D camera images.',
     },
     {
-      title: '5. Calibrated Metric Distance (~m)',
+      title: '5. Calibrated Distance (~m)',
       icon: Ruler,
-      color: 'text-emerald-400',
-      desc: 'Maps relative depth values to approximate metric distance in meters using an inverse reference calibration curve Z = a / (d + b).',
+      desc: 'Maps relative depth values to metric distance in meters using inverse calibration curve Z = a / (d + b).',
     },
   ];
 
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-5 backdrop-blur-md">
+    <div className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-5 shadow-sm">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between text-left transition-colors hover:text-slate-200"
+        className="flex items-center justify-between text-left transition-colors hover:text-stone-900 cursor-pointer"
       >
         <div className="flex items-center gap-2">
-          <HelpCircle className="h-4 w-4 text-cyan-400" />
-          <h2 className="text-sm font-semibold tracking-wide text-slate-200 uppercase">
-            How AI Sees (Educational Pipeline Guide)
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-50 text-[#9A7B3E] border border-amber-200">
+            <HelpCircle className="h-4 w-4" />
+          </div>
+          <h2 className="text-sm font-bold text-stone-900 uppercase tracking-wider">
+            Architecture Guide & AI Overview
           </h2>
         </div>
         {isOpen ? (
-          <ChevronUp className="h-4 w-4 text-slate-400" />
+          <ChevronUp className="h-4 w-4 text-stone-500" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-slate-400" />
+          <ChevronDown className="h-4 w-4 text-stone-500" />
         )}
       </button>
 
       {isOpen && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 pt-3 border-t border-slate-800">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-3 pt-3 border-t border-stone-100">
           {steps.map((step) => {
             const Icon = step.icon;
             return (
               <div
                 key={step.title}
-                className="flex flex-col gap-1.5 rounded-xl border border-slate-800/60 bg-slate-950/60 p-3 text-xs"
+                className="flex flex-col gap-2 rounded-xl border border-stone-200 bg-stone-50/70 p-3.5 text-xs"
               >
-                <div className="flex items-center gap-1.5">
-                  <Icon className={`h-4 w-4 ${step.color} shrink-0`} />
-                  <span className="font-semibold text-slate-200">{step.title}</span>
+                <div className="flex items-center gap-2">
+                  <Icon className="h-4 w-4 text-[#C5A059] shrink-0" />
+                  <span className="font-bold text-stone-900">{step.title}</span>
                 </div>
-                <p className="text-[11px] leading-relaxed text-slate-400">{step.desc}</p>
+                <p className="text-xs leading-relaxed text-stone-600 font-sans">{step.desc}</p>
               </div>
             );
           })}

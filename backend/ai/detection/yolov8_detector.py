@@ -15,6 +15,8 @@ from app.core.config import settings
 logger = logging.getLogger("vision.yolov8_detector")
 
 
+import gc
+
 class YOLOv8Detector(BaseDetector):
     """
     Concrete Object Detector using Ultralytics YOLOv8 with PyTorch inference mode optimizations.
@@ -45,6 +47,13 @@ class YOLOv8Detector(BaseDetector):
         else:
             self.device = self.requested_device
 
+        # Set conservative CPU thread count for low-memory environments
+        if self.device == "cpu" and torch is not None and hasattr(torch, "set_num_threads"):
+            try:
+                torch.set_num_threads(2)
+            except Exception as thread_err:
+                logger.debug(f"Could not set PyTorch CPU threads: {thread_err}")
+
         try:
             from ultralytics import YOLO
             self.model = YOLO(self.weights_path)
@@ -60,6 +69,9 @@ class YOLOv8Detector(BaseDetector):
                     device=self.device,
                     verbose=False
                 )
+
+            del dummy_img
+            gc.collect()
 
             end_time = time.perf_counter()
             self.load_time_ms = (end_time - start_time) * 1000.0
