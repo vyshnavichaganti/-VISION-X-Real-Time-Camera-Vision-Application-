@@ -216,7 +216,7 @@ export function useVisionStream({
 
         const controller = new AbortController();
         activeAbortControllerRef.current = controller;
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
           const blob = await captureFrameBlob();

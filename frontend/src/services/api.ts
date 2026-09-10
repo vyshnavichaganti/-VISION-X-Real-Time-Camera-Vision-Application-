@@ -1,9 +1,9 @@
 import type { DetectionResponse } from '../types/vision';
 
 // Respect VITE_API_URL or VITE_API_BASE_URL environment variable when deploying to cloud.
-// Otherwise, default to local backend URL 'http://localhost:8000'.
+// Otherwise, default to production backend URL 'https://vision-x-real-time-camera-vision.onrender.com'.
 const RAW_BASE_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
-const API_BASE_URL = RAW_BASE_URL !== undefined && RAW_BASE_URL !== '' ? RAW_BASE_URL.replace(/\/+$/, '') : 'http://localhost:8000';
+const API_BASE_URL = RAW_BASE_URL !== undefined && RAW_BASE_URL !== '' ? RAW_BASE_URL.replace(/\/+$/, '') : 'https://vision-x-real-time-camera-vision.onrender.com';
 
 export async function fetchHealth(signal?: AbortSignal): Promise<{
   online: boolean;
