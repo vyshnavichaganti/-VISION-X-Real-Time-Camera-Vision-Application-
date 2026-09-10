@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     MAX_PAYLOAD_MB: float = 10.0
     SESSION_TTL_SECONDS: int = 600
     
+    # Low-Memory Profile Flag for Render 512 MB Free Instance
+    VISION_LITE_MODE: bool = False
+    
     # Model Configuration
     MODEL_NAME: str = "YOLOv8n-COCO"
     MODEL_PATH: str = "yolov8n.pt"

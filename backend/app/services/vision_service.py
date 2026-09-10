@@ -141,7 +141,7 @@ class VisionService:
         if self._segmentor is not None and self._segmentor.is_loaded:
             return self._segmentor
 
-        if not settings.SEGMENTATION_ENABLED or self._segmentor_attempted:
+        if getattr(settings, "VISION_LITE_MODE", False) or not settings.SEGMENTATION_ENABLED or self._segmentor_attempted:
             return self._segmentor
 
         with self._model_load_lock:
@@ -182,7 +182,7 @@ class VisionService:
         if self._depth_model is not None and self._depth_model.is_loaded:
             return self._depth_model
 
-        if not settings.DEPTH_ENABLED or self._depth_model_attempted:
+        if getattr(settings, "VISION_LITE_MODE", False) or not settings.DEPTH_ENABLED or self._depth_model_attempted:
             return self._depth_model
 
         with self._model_load_lock:
@@ -257,14 +257,20 @@ class VisionService:
         # 2. Tracker
         logger.info("Tracker: READY")
 
-        # 3. FastSAM Segmentor (Lazy Loaded on First Demand)
-        if settings.SEGMENTATION_ENABLED:
+        # 3. FastSAM Segmentor (Lazy Loaded on First Demand unless Lite Mode)
+        if getattr(settings, "VISION_LITE_MODE", False):
+            logger.info("Segmentor: DISABLED (VISION_LITE_MODE active)")
+            self._segmentor_attempted = True
+        elif settings.SEGMENTATION_ENABLED:
             logger.info("Segmentor: LAZY (will initialize on demand)")
         else:
             logger.info("Segmentor: DISABLED")
 
-        # 4. MiDaS Depth Model (Lazy Loaded on First Demand)
-        if settings.DEPTH_ENABLED:
+        # 4. MiDaS Depth Model (Lazy Loaded on First Demand unless Lite Mode)
+        if getattr(settings, "VISION_LITE_MODE", False):
+            logger.info("Depth: DISABLED (VISION_LITE_MODE active)")
+            self._depth_model_attempted = True
+        elif settings.DEPTH_ENABLED:
             logger.info("Depth: LAZY (will initialize on demand)")
         else:
             logger.info("Depth: DISABLED")
@@ -343,6 +349,10 @@ class VisionService:
         Ingests image bytes, runs object detection, session-isolated tracking, 
         segmentation, depth estimation, and approximate distance calibration.
         """
+        if getattr(settings, "VISION_LITE_MODE", False):
+            enable_segmentation = False
+            enable_depth = False
+
         if self.detector is None:
             raise RuntimeError("Vision Service detector is unavailable.")
 
@@ -423,7 +433,12 @@ class VisionService:
             distance_time_ms = 0.0
             if enable_distance and settings.DISTANCE_ESTIMATION_ENABLED and self.distance_estimator is not None and len(tracked_detections) > 0:
                 try:
-                    tracked_detections, distance_time_ms = self.distance_estimator.estimate_distances(tracked_detections)
+                    allow_fallback = getattr(settings, "VISION_LITE_MODE", False) or not enable_depth or not settings.DEPTH_ENABLED
+                    tracked_detections, distance_time_ms = self.distance_estimator.estimate_distances(
+                        tracked_objects=tracked_detections,
+                        img_height=img_height,
+                        allow_bbox_fallback=allow_fallback
+                    )
                     
                     # Apply Temporal EMA Distance Smoothing per tracklet ID in session cache
                     dist_alpha = settings.DISTANCE_SMOOTHING_ALPHA

@@ -24,16 +24,19 @@ def health_check():
         "status": "healthy",
         "service": settings.PROJECT_NAME,
         "version": settings.VERSION,
+        "lite_mode": settings.VISION_LITE_MODE,
         "model_loaded": detector_loaded,
         "model": settings.MODEL_NAME,
         "device": vision_service.detector.get_info().get("device", "cpu") if vision_service.detector else "cpu",
         "segmentor_loaded": segmentor_loaded,
+        "segmentor_status": "disabled" if settings.VISION_LITE_MODE else ("ready" if segmentor_loaded else "lazy"),
         "segmentor_model": settings.SEGMENTATION_MODEL,
         "depth_loaded": depth_loaded,
+        "depth_status": "disabled" if settings.VISION_LITE_MODE else ("ready" if depth_loaded else "lazy"),
         "depth_model": settings.DEPTH_MODEL,
         "distance_estimator_loaded": distance_loaded,
         "calibration_status": "calibrated" if distance_loaded else "uncalibrated",
-        "calibration_method": settings.CALIBRATION_METHOD,
+        "calibration_method": "bbox_approximate" if settings.VISION_LITE_MODE else settings.CALIBRATION_METHOD,
     }
 
 
@@ -45,20 +48,24 @@ def readiness_check(response: Response):
     """
     detector_status = "ready" if (vision_service.detector and vision_service.detector.is_loaded) else "unavailable"
     tracker_status = "ready"
-    
-    if vision_service.is_segmentor_loaded:
-        segmentor_status = "ready"
-    elif settings.SEGMENTATION_ENABLED:
-        segmentor_status = "lazy"
-    else:
-        segmentor_status = "disabled"
 
-    if vision_service.is_depth_model_loaded:
-        depth_status = "ready"
-    elif settings.DEPTH_ENABLED:
-        depth_status = "lazy"
-    else:
+    if settings.VISION_LITE_MODE:
+        segmentor_status = "disabled"
         depth_status = "disabled"
+    else:
+        if vision_service.is_segmentor_loaded:
+            segmentor_status = "ready"
+        elif settings.SEGMENTATION_ENABLED:
+            segmentor_status = "lazy"
+        else:
+            segmentor_status = "disabled"
+
+        if vision_service.is_depth_model_loaded:
+            depth_status = "ready"
+        elif settings.DEPTH_ENABLED:
+            depth_status = "lazy"
+        else:
+            depth_status = "disabled"
 
     distance_status = "ready" if (vision_service.distance_estimator and vision_service.distance_estimator.is_initialized) else "unavailable"
 
@@ -68,6 +75,7 @@ def readiness_check(response: Response):
 
     return {
         "status": "ready" if is_ready else "degraded",
+        "lite_mode": settings.VISION_LITE_MODE,
         "detector": detector_status,
         "tracker": tracker_status,
         "segmentor": segmentor_status,
